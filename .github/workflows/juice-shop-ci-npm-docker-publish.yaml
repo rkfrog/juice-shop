@@ -65,14 +65,10 @@ jobs:
       # - name: JFrog audit 🐸
       #   run: |
       #     jfrog audit
-      - name: "Install CLI tools"
-        run: npm install -g @angular/cli@$ANGULAR_CLI_VERSION
-      - name: Install dependencies
-        run: jfrog npm i --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module npm-build --project $JF_PROJECT
-
-      - name: "Install application minimalistically"
+      - name: Install NPM dependencies
         run: |
-          npm install --ignore-scripts
+          jfrog npm i -g @angular/cli@${{ env.ANGULAR_CLI_VERSION }}
+          jfrog npm i --ignore-scripts --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module npm-build --project $JF_PROJECT
       - name: NPM publish 🐸
         run: jfrog npm publish  --project $JF_PROJECT --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module npm-build
       - name: Login to JFrog Docker repo
