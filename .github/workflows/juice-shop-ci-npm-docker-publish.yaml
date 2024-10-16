@@ -17,6 +17,8 @@ permissions:
   security-events: write # Required for uploading code scanning 
 
 env:
+  NODE_DEFAULT_VERSION: 20  
+  ANGULAR_CLI_VERSION: 17
   NPM_JF_RT_REPO: ${{ vars.NPM_JF_RT_REPO }}
   DOCKER_JF_RT_REPO: ${{ vars.DOCKER_JF_RT_REPO }}
   JF_PROJECT: ${{ vars.JF_PROJECT }}
@@ -37,7 +39,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with: 
-          node-version: "18.15.0"
+          node-version: ${{ env.NODE_DEFAULT_VERSION }}
       - name: JFrog CLI setup 🐸
         uses: jfrog/setup-jfrog-cli@v4
         env:
@@ -63,8 +65,14 @@ jobs:
       # - name: JFrog audit 🐸
       #   run: |
       #     jfrog audit
+      - name: "Install CLI tools"
+        run: npm install -g @angular/cli@$ANGULAR_CLI_VERSION
       - name: Install dependencies
         run: jfrog npm i --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module npm-build --project $JF_PROJECT
+
+      - name: "Install application minimalistically"
+        run: |
+          npm install --ignore-scripts
       - name: NPM publish 🐸
         run: jfrog npm publish  --project $JF_PROJECT --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module npm-build
       - name: Login to JFrog Docker repo
