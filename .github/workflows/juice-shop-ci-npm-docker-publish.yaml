@@ -16,13 +16,13 @@ permissions:
   contents: read #Ability to read the contents permission
   security-events: write # Required for uploading code scanning 
 
+env:
+  NPM_JF_RT_REPO: ${{ vars.NPM_JF_RT_REPO }}
+  DOCKER_JF_RT_REPO: ${{ vars.DOCKER_JF_RT_REPO }}
+  JF_RT_PROJECT_NAME: ${{ vars.JF_RT_PROJECT_NAME }}
 jobs:
   npm-docker-build-and-publish-dev:
     runs-on: ubuntu-20.04
-    env:
-      NPM_JF_RT_REPO: ${{ vars.NPM_JF_RT_REPO }}
-      DOCKER_JF_RT_REPO: ${{ vars.DOCKER_JF_RT_REPO }}
-      JF_RT_PROJECT_NAME: ${{ vars.JF_RT_PROJECT_NAME }}
     steps:
       - run: |
           echo "The job was triggered by a ${{ github.event_name }} event."
