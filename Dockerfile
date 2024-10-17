@@ -6,10 +6,10 @@ FROM ${REGISTRY_URL}/${DOCKER_REPO_NAME}/node:20-buster as installer
 
 COPY . /juice-shop
 WORKDIR /juice-shop
-RUN rm -rf ./.package-lock.json
-RUN npm i -g typescript ts-node
-RUN npm install --omit=dev 
-RUN npm dedupe --omit=dev
+
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm i -g typescript ts-node
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci --omit=dev
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm dedupe --omit=dev
 RUN rm -rf frontend/node_modules
 RUN rm -rf frontend/.angular
 RUN rm -rf frontend/src/assets
