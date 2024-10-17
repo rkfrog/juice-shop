@@ -79,17 +79,17 @@ jobs:
           password: ${{ secrets.JF_ACCESS_TOKEN }}
       - name: Docker Build 🐳🐸
         run: |
+          echo "registry=https://${{ env.JF_URL }}/artifactory/api/npm/$NPM_JF_RT_REPO/" >> $HOME/.npmrc
           echo "//${{ env.JF_URL }}/artifactory/api/npm/$NPM_JF_RT_REPO/:_authToken=${{ env.NPM_TOKEN }}" >> $HOME/.npmrc
-          cat $HOME/.npmrc
           jfrog docker image build --tag ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }} --secret id=npmrc,src=$HOME/.npmrc  --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module docker-build --project $JF_PROJECT --build-arg="REGISTRY_URL=${{ env.JF_URL }}" --build-arg="DOCKER_REPO_NAME=$DOCKER_JF_RT_REPO" --build-arg="NPM_REPO_NAME=$NPM_JF_RT_REPO" .
         env:
           JF_URL: ${{ vars.JF_URL }}
           NPM_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-      # - name: JFrog docker image scan 🐳🐸
-      #   run: |
-      #     jfrog docker scan ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }}
-      #   env:
-      #     JF_URL: ${{ vars.JF_URL }}
+      - name: JFrog docker image scan 🐳🐸
+        run: |
+          jfrog docker scan ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }} --format json
+        env:
+          JF_URL: ${{ vars.JF_URL }}
       - name: Docker Push 🐳🐸
         run: |
           jfrog docker push ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }} --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module docker-build --project $JF_PROJECT
@@ -104,4 +104,4 @@ jobs:
       - name: JFrog build scan 🐸
         run: |
           sleep 60
-          jfrog bs $JFROG_CLI_BUILD_NAME $JFROG_CLI_BUILD_NUMBER --project $JF_PROJECT --vuln=true
+          jfrog bs $JFROG_CLI_BUILD_NAME $JFROG_CLI_BUILD_NUMBER --project $JF_PROJECT --vuln=true --format json
