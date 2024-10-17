@@ -56,9 +56,7 @@ jobs:
         run:  |
           jfrog npm-config --repo-deploy=$NPM_JF_RT_REPO -repo-resolve=$NPM_JF_RT_REPO
           jfrog npm config set registry ${{ env.JF_URL }}/artifactory/api/npm/$NPM_JF_RT_REPO/
-          # jfrog npm config list | jq -r .registry
-          cat $HOME/.npmrc
-          npm config ls
+          jfrog npm config list | jq -r .registry
         env:
           JF_URL: https://${{ vars.JF_URL }}
       # - name: JFrog Curation audit
@@ -81,11 +79,12 @@ jobs:
           password: ${{ secrets.JF_ACCESS_TOKEN }}
       - name: Docker Build 🐳🐸
         run: |
+          echo "//${{ env.JF_URL }}/artifactory/api/npm/$NPM_JF_RT_REPO/:_authToken=${{ env.NPM_TOKEN }}" >> $HOME/.npmrc
           cat $HOME/.npmrc
-          npm config ls
           jfrog docker image build --tag ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }} --secret id=npmrc,src=$HOME/.npmrc  --build-name $JFROG_CLI_BUILD_NAME --build-number $JFROG_CLI_BUILD_NUMBER --module docker-build --project $JF_PROJECT --build-arg="REGISTRY_URL=${{ env.JF_URL }}" --build-arg="DOCKER_REPO_NAME=$DOCKER_JF_RT_REPO" --build-arg="NPM_REPO_NAME=$NPM_JF_RT_REPO" .
         env:
           JF_URL: ${{ vars.JF_URL }}
+          NPM_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
       # - name: JFrog docker image scan 🐳🐸
       #   run: |
       #     jfrog docker scan ${{ env.JF_URL }}/$DOCKER_JF_RT_REPO/juice-shop-demo:${{ env.NPM_PACKAGE_BUILD_VERSION }}
