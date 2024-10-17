@@ -200,6 +200,3 @@ dist
 
 # Jfrog config
 .jfrog
-
-# Package lock
-.package-lock.json
